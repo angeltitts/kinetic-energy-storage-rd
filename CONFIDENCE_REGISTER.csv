@@ -1,6 +1,6 @@
 claim_id,claim,confidence_percent,impact,evidence_status,next_action
 C-001,"Thin hoop obeys sigma=rho*v^2 and e=sigma/(2*rho)",99,critical,analytical,retain
-C-002,"20 GPa usable macroscale CNT rotor material can eventually exist",20,critical,extrapolative,research materials literature
+C-002,"20 GPa usable macroscale CNT rotor material can eventually exist",20,critical,"literature evidence: two macroscale CNT-fiber data points; mixed/negative-leaning versus baseline","Chief Engineer review C-002. Compare 2026 fluidics-densified specific strength 7.5e6 N·m/kg against register baseline 20 GPa / 1500 kg/m^3 = 1.33e7 N·m/kg; treat the shortfall as negative signal, not confirmation."
 C-003,"DSHC can exceed 500 Wh/kg system-level",30,critical,conditional analytical feasibility,"validate <=0.60 non-rotor mass ratio and >=65% fatigue retention"
 C-004,"Progressive containment can stay below 1x rotor mass",15,critical,conceptual,"develop containment and non-rotor mass budget model"
 C-005,"Multi-km/s hoop rotordynamics can be controlled",10,critical,unproven,"develop rotordynamic model; P0 tests differential stability only"

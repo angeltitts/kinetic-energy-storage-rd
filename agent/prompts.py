@@ -15,4 +15,20 @@ Return a structured engineering report with: selected uncertainty; why it matter
 """
 
 def build_cycle_prompt(project_state:str, task:dict[str,str], model_summary:str)->str:
-    return f"""CURRENT PROJECT STATE\n=====================\n{project_state}\n\nDETERMINISTIC MODEL SUMMARY\n===========================\n{model_summary}\n\nSELECTED TASK\n=============\nClaim ID: {task.get('claim_id')}\nClaim: {task.get('claim')}\nNext action: {task.get('next_action')}\n\nPerform one bounded engineering-review cycle on this task. Do not broaden into unrelated redesign.\n"""
+    return f"""CURRENT PROJECT STATE
+=====================
+{project_state}
+
+DETERMINISTIC MODEL SUMMARY
+===========================
+{model_summary}
+
+SELECTED TASK
+=============
+Claim ID: {task.get('claim_id')}
+Claim: {task.get('claim')}
+Next action: {task.get('next_action')}
+Selection audit: {task.get('tie_note') or 'No top-score tie.'}
+
+Perform one bounded engineering-review cycle on this task. Do not broaden into unrelated redesign.
+"""

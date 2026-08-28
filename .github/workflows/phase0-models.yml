@@ -25,6 +25,12 @@ jobs:
         run: python models/system_model.py
       - name: Run parameter sweep
         run: python models/parameter_sweep.py
+      - name: Run Phase 1 feasibility model
+        run: python models/phase1_feasibility.py
+      - name: Run Phase 2 mass-budget model
+        run: python models/phase2_mass_budget.py
+      - name: Run Phase 3 segmented-containment model
+        run: python models/phase3_segmented_containment.py
       - name: Upload model outputs
         uses: actions/upload-artifact@v4
         with:
@@ -32,3 +38,6 @@ jobs:
           path: |
             results/baseline.json
             results/phase0_sweep.csv
+            results/phase1_500whkg_gate.csv
+            results/phase2_mass_budget.csv
+            results/phase3_segmented_containment.csv
