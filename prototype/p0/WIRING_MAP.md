@@ -30,7 +30,12 @@ Each Hall sensor:
 - VCC to approved logic voltage
 - GND to controller ground
 - signal to its assigned GPIO
-- one mechanically retained magnet/index marker per rotor
+- four mechanically retained magnet/index markers per rotor
+- magnets equally spaced at 90 degrees and at the same radius
+
+The firmware assumes exactly four pulses per mechanical revolution. Verify exactly four clean transitions per hand-turned revolution before motor power is enabled.
+
+Why four: the acceptance plan includes 50 RPM. One pulse/revolution gives a 1.20 s interval at 50 RPM, which exceeded the prior 1.0 s stale-speed timeout. Four pulses/revolution reduce the interval to 0.30 s and support low-speed closed-loop validation without increasing rotor speed.
 
 ## Motor-driver requirement
 
@@ -41,9 +46,10 @@ Do not connect a motor directly to a Pico GPIO.
 ## Commissioning order
 
 1. power controller only;
-2. verify Hall pulses by hand rotation;
+2. verify exactly four Hall pulses per hand-turned revolution on A, B, and C;
 3. verify all PWM outputs are zero at boot;
 4. power one motor channel through the fused E-stop path;
 5. verify direction and STOP behavior;
-6. repeat for channels B/C;
-7. install guard before any three-rotor run.
+6. verify stable telemetry at the 50 RPM acceptance point;
+7. repeat for channels B/C;
+8. install guard before any three-rotor run.
