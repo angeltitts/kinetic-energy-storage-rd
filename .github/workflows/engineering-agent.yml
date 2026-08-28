@@ -1,0 +1,50 @@
+name: Autonomous engineering review
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  engineering-cycle:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: kinetic-engineering-agent
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Validate deterministic model
+        run: |
+          pytest -q
+          python models/system_model.py
+          python models/parameter_sweep.py
+      - name: Run one bounded Chief Engineer cycle
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.6-sol' }}
+          MAX_AGENT_TASKS_PER_RUN: "1"
+          MAX_AGENT_OUTPUT_CHARS: "20000"
+        run: python -m agent.chief_engineer
+      - name: Create review branch
+        run: |
+          BRANCH="agent/review-${GITHUB_RUN_ID}"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          git checkout -b "$BRANCH"
+      - name: Commit report and deterministic outputs
+        run: |
+          git config user.name "kinetic-rd-agent"
+          git config user.email "kinetic-rd-agent@users.noreply.github.com"
+          git add results/
+          git commit -m "Agent engineering review ${GITHUB_RUN_ID}" || exit 0
+          git push origin "$BRANCH"
+      - name: Open pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create --base main --head "$BRANCH" --title "Autonomous engineering review ${GITHUB_RUN_ID}" --body "One bounded Chief Engineer cycle. Review before merge. The workflow never auto-merges."
