@@ -17,4 +17,7 @@ def main():
     print(f"Wrote {len(rows)} cases to {out}")
     print("Best candidate:")
     for k,v in rows[0].items(): print(f"{k}: {v}")
+    baseline_rows=[row for row in rows if row["strength_GPa"]==20]
+    print("Best candidate AT REGISTER BASELINE (20 GPa):")
+    for k,v in baseline_rows[0].items(): print(f"{k}: {v}")
 if __name__=="__main__": main()
