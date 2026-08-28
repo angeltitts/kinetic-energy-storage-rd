@@ -2,16 +2,24 @@
 P0 Differential Hoop Rig
 RP2040 / Raspberry Pi Pico reference firmware.
 
-Functional goals:
-- read one Hall pulse/revolution for each rotor
-- independently control three DC motors
-- hard software RPM limit at 330 RPM
-- latched fault state
-- serial data logging
+Hardware:
+- 3 Hall sensors, one pulse/revolution
+- 3 brushed DC motor channels
+- one direction pin + one PWM pin per motor
+- physical emergency stop MUST interrupt motor power directly
 
-IMPORTANT:
-The physical emergency-stop must interrupt motor power directly.
-Do not rely on software as the only safety stop.
+Serial commands at 115200 baud:
+  RUN
+  STOP
+  RESET
+  SET a b c
+Example:
+  SET 180 120 60
+
+Safety:
+- targets are clamped to 300 RPM
+- measured overspeed above 330 RPM latches FAULT
+- FAULT requires RESET after the rotor is stopped
 */
 
 const int HALL_A = 2;
@@ -26,8 +34,8 @@ const int DIR_A = 9;
 const int DIR_B = 10;
 const int DIR_C = 11;
 
-const float MAX_COMMAND_RPM = 300.0;
-const float OVERSPEED_RPM = 330.0;
+const float MAX_COMMAND_RPM = 300.0f;
+const float OVERSPEED_RPM = 330.0f;
 
 volatile unsigned long lastPulseUsA = 0;
 volatile unsigned long lastPulseUsB = 0;
@@ -36,33 +44,38 @@ volatile unsigned long periodUsA = 0;
 volatile unsigned long periodUsB = 0;
 volatile unsigned long periodUsC = 0;
 
-float targetA = 0;
-float targetB = 0;
-float targetC = 0;
+float targetA = 0.0f;
+float targetB = 0.0f;
+float targetC = 0.0f;
 
-float rpmA = 0;
-float rpmB = 0;
-float rpmC = 0;
+float rpmA = 0.0f;
+float rpmB = 0.0f;
+float rpmC = 0.0f;
 
-float integA = 0;
-float integB = 0;
-float integC = 0;
+float integA = 0.0f;
+float integB = 0.0f;
+float integC = 0.0f;
 
+bool runEnabled = false;
 bool faultLatched = false;
 
-const float KP = 0.8;
-const float KI = 0.25;
+const float KP = 0.8f;
+const float KI = 0.25f;
+
+String serialLine;
 
 void pulseA() {
   unsigned long now = micros();
   if (lastPulseUsA != 0) periodUsA = now - lastPulseUsA;
   lastPulseUsA = now;
 }
+
 void pulseB() {
   unsigned long now = micros();
   if (lastPulseUsB != 0) periodUsB = now - lastPulseUsB;
   lastPulseUsB = now;
 }
+
 void pulseC() {
   unsigned long now = micros();
   if (lastPulseUsC != 0) periodUsC = now - lastPulseUsC;
@@ -70,24 +83,101 @@ void pulseC() {
 }
 
 float periodToRPM(unsigned long periodUs, unsigned long lastPulseUs) {
-  if (periodUs == 0) return 0.0;
-  if (micros() - lastPulseUs > 1000000UL) return 0.0;
-  return 60000000.0 / (float)periodUs;
+  if (periodUs == 0 || lastPulseUs == 0) return 0.0f;
+  if (micros() - lastPulseUs > 1000000UL) return 0.0f;
+  return 60000000.0f / (float)periodUs;
 }
 
 int controlMotor(float target, float measured, float &integrator, float dt) {
-  target = constrain(target, 0.0, MAX_COMMAND_RPM);
+  target = constrain(target, 0.0f, MAX_COMMAND_RPM);
   float error = target - measured;
   integrator += error * dt;
-  integrator = constrain(integrator, -300.0, 300.0);
+  integrator = constrain(integrator, -300.0f, 300.0f);
   float command = KP * error + KI * integrator;
-  return (int)constrain(command, 0.0, 255.0);
+  return (int)constrain(command, 0.0f, 255.0f);
 }
 
 void stopAll() {
   analogWrite(PWM_A, 0);
   analogWrite(PWM_B, 0);
   analogWrite(PWM_C, 0);
+}
+
+void resetIntegrators() {
+  integA = 0.0f;
+  integB = 0.0f;
+  integC = 0.0f;
+}
+
+void processCommand(String cmd) {
+  cmd.trim();
+  cmd.toUpperCase();
+
+  if (cmd == "RUN") {
+    if (!faultLatched) {
+      runEnabled = true;
+      Serial.println("OK RUN");
+    } else {
+      Serial.println("ERR FAULT_LATCHED");
+    }
+    return;
+  }
+
+  if (cmd == "STOP") {
+    runEnabled = false;
+    stopAll();
+    resetIntegrators();
+    Serial.println("OK STOP");
+    return;
+  }
+
+  if (cmd == "RESET") {
+    if (rpmA < 5.0f && rpmB < 5.0f && rpmC < 5.0f) {
+      faultLatched = false;
+      runEnabled = false;
+      resetIntegrators();
+      stopAll();
+      Serial.println("OK RESET");
+    } else {
+      Serial.println("ERR ROTORS_NOT_STOPPED");
+    }
+    return;
+  }
+
+  if (cmd.startsWith("SET ")) {
+    float a, b, c;
+    int parsed = sscanf(cmd.c_str(), "SET %f %f %f", &a, &b, &c);
+    if (parsed == 3) {
+      targetA = constrain(a, 0.0f, MAX_COMMAND_RPM);
+      targetB = constrain(b, 0.0f, MAX_COMMAND_RPM);
+      targetC = constrain(c, 0.0f, MAX_COMMAND_RPM);
+      Serial.print("OK SET ");
+      Serial.print(targetA);
+      Serial.print(" ");
+      Serial.print(targetB);
+      Serial.print(" ");
+      Serial.println(targetC);
+    } else {
+      Serial.println("ERR USE: SET a b c");
+    }
+    return;
+  }
+
+  Serial.println("ERR COMMANDS: SET a b c | RUN | STOP | RESET");
+}
+
+void readSerialCommands() {
+  while (Serial.available()) {
+    char ch = (char)Serial.read();
+    if (ch == '\n' || ch == '\r') {
+      if (serialLine.length() > 0) {
+        processCommand(serialLine);
+        serialLine = "";
+      }
+    } else if (serialLine.length() < 80) {
+      serialLine += ch;
+    }
+  }
 }
 
 void setup() {
@@ -114,14 +204,20 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(HALL_C), pulseC, FALLING);
 
   stopAll();
+
+  Serial.println("P0 Differential Hoop Rig ready.");
+  Serial.println("Example: SET 180 120 60");
+  Serial.println("Then: RUN");
 }
 
 void loop() {
+  readSerialCommands();
+
   static unsigned long lastMs = millis();
   unsigned long nowMs = millis();
   if (nowMs - lastMs < 100) return;
 
-  float dt = (nowMs - lastMs) / 1000.0;
+  float dt = (nowMs - lastMs) / 1000.0f;
   lastMs = nowMs;
 
   noInterrupts();
@@ -139,44 +235,46 @@ void loop() {
 
   if (rpmA > OVERSPEED_RPM || rpmB > OVERSPEED_RPM || rpmC > OVERSPEED_RPM) {
     faultLatched = true;
+    runEnabled = false;
   }
 
-  if (faultLatched) {
+  int outA = 0;
+  int outB = 0;
+  int outC = 0;
+
+  if (faultLatched || !runEnabled) {
     stopAll();
   } else {
-    int outA = controlMotor(targetA, rpmA, integA, dt);
-    int outB = controlMotor(targetB, rpmB, integB, dt);
-    int outC = controlMotor(targetC, rpmC, integC, dt);
+    outA = controlMotor(targetA, rpmA, integA, dt);
+    outB = controlMotor(targetB, rpmB, integB, dt);
+    outC = controlMotor(targetC, rpmC, integC, dt);
 
     analogWrite(PWM_A, outA);
     analogWrite(PWM_B, outB);
     analogWrite(PWM_C, outC);
   }
 
+  // CSV log:
+  // ms,targetA,rpmA,pwmA,targetB,rpmB,pwmB,targetC,rpmC,pwmC,fault
   Serial.print(nowMs);
   Serial.print(",");
   Serial.print(targetA);
   Serial.print(",");
   Serial.print(rpmA);
   Serial.print(",");
+  Serial.print(outA);
+  Serial.print(",");
   Serial.print(targetB);
   Serial.print(",");
   Serial.print(rpmB);
+  Serial.print(",");
+  Serial.print(outB);
   Serial.print(",");
   Serial.print(targetC);
   Serial.print(",");
   Serial.print(rpmC);
   Serial.print(",");
+  Serial.print(outC);
+  Serial.print(",");
   Serial.println(faultLatched ? 1 : 0);
 }
-
-/*
-For the first bench test, set targets directly here or extend the serial parser.
-
-Example targets:
-targetA = 180;
-targetB = 120;
-targetC = 60;
-
-Keep all commands <= 300 RPM.
-*/
