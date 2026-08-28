@@ -1,0 +1,8 @@
+claim_id,claim,confidence_percent,impact,evidence_status,next_action
+C-001,"Thin hoop obeys sigma=rho*v^2 and e=sigma/(2*rho)",99,critical,analytical,retain
+C-002,"20 GPa usable macroscale CNT rotor material can eventually exist",20,critical,extrapolative,research materials literature
+C-003,"DSHC can exceed 500 Wh/kg system-level",15,critical,unproven,run Phase 0 model
+C-004,"Progressive containment can stay below 1x rotor mass",15,critical,conceptual,develop containment model
+C-005,"Multi-km/s hoop rotordynamics can be controlled",10,critical,unproven,develop rotordynamic model
+C-006,"HTS flux-pinned bearing is practical at target regime",20,high,extrapolative,quantify bearing load and losses
+C-007,"Shaftless stator coupling can achieve acceptable mass and rotor heating",25,high,conceptual,compare actuator topologies
