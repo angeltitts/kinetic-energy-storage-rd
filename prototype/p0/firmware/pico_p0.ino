@@ -3,7 +3,8 @@ P0 Differential Hoop Rig
 RP2040 / Raspberry Pi Pico reference firmware.
 
 Hardware:
-- 3 Hall sensors, one pulse/revolution
+- 3 Hall sensors
+- 4 equally spaced, mechanically retained index magnets per rotor
 - 3 brushed DC motor channels
 - one direction pin + one PWM pin per motor
 - physical emergency stop MUST interrupt motor power directly
@@ -36,6 +37,13 @@ const int DIR_C = 11;
 
 const float MAX_COMMAND_RPM = 300.0f;
 const float OVERSPEED_RPM = 330.0f;
+
+// Four evenly spaced index magnets give a pulse every 0.30 s at 50 RPM.
+// The previous one-pulse/rev arrangement produced a pulse only every 1.20 s
+// at 50 RPM, longer than the old 1.0 s stale timeout, so valid low-speed
+// operation was intermittently reported as zero RPM.
+const unsigned int PULSES_PER_REV = 4;
+const unsigned long STALE_TIMEOUT_US = 750000UL;
 
 volatile unsigned long lastPulseUsA = 0;
 volatile unsigned long lastPulseUsB = 0;
@@ -84,8 +92,8 @@ void pulseC() {
 
 float periodToRPM(unsigned long periodUs, unsigned long lastPulseUs) {
   if (periodUs == 0 || lastPulseUs == 0) return 0.0f;
-  if (micros() - lastPulseUs > 1000000UL) return 0.0f;
-  return 60000000.0f / (float)periodUs;
+  if (micros() - lastPulseUs > STALE_TIMEOUT_US) return 0.0f;
+  return 60000000.0f / ((float)periodUs * (float)PULSES_PER_REV);
 }
 
 int controlMotor(float target, float measured, float &integrator, float dt) {
@@ -206,6 +214,7 @@ void setup() {
   stopAll();
 
   Serial.println("P0 Differential Hoop Rig ready.");
+  Serial.println("Hall sensing: 4 pulses/revolution.");
   Serial.println("Example: SET 180 120 60");
   Serial.println("Then: RUN");
 }
