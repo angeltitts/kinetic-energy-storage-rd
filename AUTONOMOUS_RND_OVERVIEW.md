@@ -1,7 +1,6 @@
 # Autonomous R&D Layer
 
-This layer turns the static engineering repository into a bounded, persistent
-research loop.
+This layer turns the static engineering repository into a bounded, persistent research loop.
 
 ## Every scheduled cycle
 

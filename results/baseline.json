@@ -1,1 +1,30 @@
-
+{
+  "material": {
+    "density_kg_m3": 1500.0,
+    "tensile_strength_pa": 20000000000.0,
+    "fatigue_derating": 0.5,
+    "safety_factor": 1.5
+  },
+  "rotor": {
+    "mass_kg": 50.0,
+    "radius_m": 0.5
+  },
+  "mass_model": {
+    "containment_ratio": 0.75,
+    "vacuum_housing_ratio": 0.15,
+    "stator_ratio": 0.2,
+    "bearing_ratio": 0.08,
+    "cryogenic_ratio": 0.08,
+    "power_electronics_ratio": 0.1,
+    "controls_ratio": 0.03
+  },
+  "effective_stress_GPa": 6.666666666666667,
+  "tip_speed_m_s": 2108.1851067789197,
+  "rpm": 40263.36968358963,
+  "rotor_specific_energy_Wh_kg": 617.283950617284,
+  "stored_energy_kWh": 30.8641975308642,
+  "parasitic_mass_kg": 69.5,
+  "total_system_mass_kg": 119.5,
+  "system_specific_energy_Wh_kg": 258.2786400591146,
+  "passes_500_Wh_kg": false
+}
