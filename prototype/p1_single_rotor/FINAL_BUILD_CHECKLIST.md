@@ -39,13 +39,23 @@ This checklist represents the point where software/design work stops and physica
 - [ ] wire battery -> fuse -> E-stop/contactor -> VESC
 - [ ] verify E-stop at zero speed
 
-## VESC initial limits
+## VESC / supervisor initial limits
 - [ ] rotor command <=1500 RPM
-- [ ] overspeed trip 1650 RPM in independent supervisory logic
+- [ ] independent overspeed trip =1650 RPM
+- [ ] independent RPM sample stale timeout =0.25 s during commanded run
+- [ ] >5% independent-vs-VESC RPM disagreement latches a fault
 - [ ] battery discharge current <=5 A
 - [ ] regenerative battery current <=1 A with BLF-2410AS
 - [ ] motor current limit conservative for first run
 - [ ] battery not at full state-of-charge before regen test
+
+## Supervisory interlock dry checks — no powered rotor required
+- [ ] hand-turn confirms independent RPM sensor updates and scaling
+- [ ] simulated independent RPM >=1650 latches overspeed fault
+- [ ] simulated stale independent RPM channel latches sensor fault
+- [ ] simulated >5% sensor disagreement latches fault
+- [ ] latched supervisor state commands zero torque / isolation request
+- [ ] physical E-stop removes controller power independently of software
 
 ## Commission
 - [ ] 250 RPM / 30 s
