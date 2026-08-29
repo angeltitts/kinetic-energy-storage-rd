@@ -6,6 +6,7 @@ This checklist represents the point where software/design work stops and physica
 - [ ] Flipsky 5055 200KV sensored BLDC motor
 - [ ] Mini FSESC4.20
 - [ ] Bioenno BLF-2410AS 24V 10Ah LiFePO4 battery (or approved equivalent)
+- [ ] 22 ohm, >=100 W chassis-mount dump resistor
 - [ ] 2 x KP001 12 mm pillow blocks
 - [ ] 12 mm x 260 mm precision shaft
 - [ ] 15T HTD5M x 15 mm pulley, 8 mm bore
@@ -36,7 +37,10 @@ This checklist represents the point where software/design work stops and physica
 - [ ] install belt and align pulley faces
 - [ ] install guard
 - [ ] install independent RPM/vibration/temp sensing
-- [ ] wire battery -> fuse -> E-stop/contactor -> VESC
+- [ ] mount 22 ohm / >=100 W dump resistor thermally to metal base
+- [ ] wire battery -> fuse -> E-stop/contactor -> P1 DC bus -> VESC
+- [ ] wire dump resistor across P1 DC bus on controller side of contactor
+- [ ] place recovered-energy current measurement in VESC branch, excluding dump/battery branches
 - [ ] verify E-stop at zero speed
 
 ## VESC / supervisor initial limits
@@ -48,6 +52,7 @@ This checklist represents the point where software/design work stops and physica
 - [ ] regenerative battery current <=1 A with BLF-2410AS
 - [ ] motor current limit conservative for first run
 - [ ] battery not at full state-of-charge before regen test
+- [ ] regen enabled only with measured DC bus in 24.0-28.0 V window
 
 ## Supervisory interlock dry checks — no powered rotor required
 - [ ] hand-turn confirms independent RPM sensor updates and scaling
@@ -55,9 +60,11 @@ This checklist represents the point where software/design work stops and physica
 - [ ] simulated stale independent RPM channel latches sensor fault
 - [ ] simulated >5% sensor disagreement latches fault
 - [ ] latched supervisor state commands zero torque / isolation request
-- [ ] physical E-stop removes controller power independently of software
+- [ ] physical E-stop removes battery source independently of software while dump remains across controller bus
 
 ## Commission
+- [ ] verify dump resistance and secure thermal mounting before applying bus power
+- [ ] verify dump temperature remains controlled during a stationary powered-bus hold
 - [ ] 250 RPM / 30 s
 - [ ] 500 RPM / 30 s
 - [ ] 750 RPM / 30 s
@@ -70,11 +77,11 @@ This checklist represents the point where software/design work stops and physica
 
 ## Prototype is working when
 - [ ] five consecutive regenerative cycles complete without fault
-- [ ] measured returned energy is positive
+- [ ] measured returned energy at the VESC branch is positive
 - [ ] recovered-energy coefficient of variation <10%
 - [ ] coast-down repeatability <10%
 - [ ] no monotonic vibration growth
 - [ ] no witness-mark movement
-- [ ] no abnormal bearing/motor/controller heating
+- [ ] no abnormal bearing/motor/controller/dump-resistor heating
 
 At this point P1 is a working flywheel energy-storage demonstrator and provides the data needed to decide P2.
