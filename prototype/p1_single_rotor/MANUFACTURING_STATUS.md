@@ -20,12 +20,13 @@ Frozen:
 - acceptance criteria
 - independent overspeed supervisory contract
 - executable five-cycle energy/repeatability acceptance analysis
+- parameterized motor-adjustment-plate CAD driven by measured motor-face dimensions
 
 Requires physical incoming-part verification:
-- exact Flipsky motor face mounting-hole coordinates before drilling motor plate
+- measure the purchased Flipsky motor face and enter bolt count, bolt circle, hole diameter, and center clearance into the released motor-interface CAD/checker before drilling
 - actual shaft/bearing fit
 - purchased pulley runout
-- actual battery state-of-charge / regen acceptance
+- actual battery state-of-charge / regenerative charge acceptance
 - rotor/hub runout after machining
 
 Requires physical test evidence before P1 can pass:
@@ -35,7 +36,7 @@ Requires physical test evidence before P1 can pass:
 - five coast-down measurements
 - witness-mark stability
 
-No additional theoretical work is required before ordering parts and issuing the rotor/hub machining drawings.
+No additional theoretical work is required before ordering parts and issuing the rotor/hub machining drawings. The motor mounting pattern is intentionally treated as an incoming measurement rather than a catalog assumption.
 
 The next engineering evidence can only come from:
 1. incoming inspection;
