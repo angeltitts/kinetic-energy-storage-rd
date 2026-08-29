@@ -26,6 +26,15 @@ This checklist represents the point where software/design work stops and physica
 - [ ] motor adjustment plate
 - [ ] base plate holes after physical bearing/motor parts are in hand
 
+## Incoming inspection — required before powered commissioning
+- [ ] measure actual motor mounting face before drilling the adjustment plate
+- [ ] measure shaft diameter and bearing bore; explicitly disposition shaft/bearing fit
+- [ ] measure installed shaft-pulley runout; explicitly disposition result
+- [ ] verify assembled rotor radial runout at OD <=0.25 mm
+- [ ] verify assembled rotor axial wobble at OD <=0.25 mm
+- [ ] save measurements in the INCOMING_INSPECTION.md JSON format
+- [ ] run `python prototype/p1_single_rotor/incoming_inspection.py <record.json>` and record PASS
+
 ## Bench assembly
 - [ ] mount pillow blocks loosely
 - [ ] install shaft
