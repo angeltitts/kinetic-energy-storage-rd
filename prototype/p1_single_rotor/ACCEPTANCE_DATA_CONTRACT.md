@@ -33,6 +33,8 @@ For every charge/discharge cycle compute:
 - time to accelerate 300 -> 1500 RPM
 - time to regenerate 1500 -> 300 RPM
 
+`acceptance_analyzer.py` is the executable reference for energy sign convention, five-cycle repeatability, fault/witness-mark checks, and the released coefficient-of-variation limits.
+
 ## P1 decision threshold
 
 P1 is considered a successful architecture demonstrator if:
@@ -46,3 +48,9 @@ P1 is considered a successful architecture demonstrator if:
 7. bearing, motor, and controller temperatures remain stable within their component ratings.
 
 No minimum round-trip efficiency is imposed at P1 because atmospheric windage, commodity bearings, and the temporary drive train are intentionally not optimized.
+
+## Physical-review boundary
+
+Criteria 5 and 7 remain physical review gates. The repository does not yet contain evidence-backed universal numeric vibration or temperature thresholds for the as-built rig. The analyzer therefore defaults those gates to **not passed** unless the test operator explicitly records that the vibration-growth review and component-specific thermal review passed.
+
+This prevents a clean numerical energy dataset from falsely authorizing acceptance when mechanical or thermal behavior has not been reviewed.
