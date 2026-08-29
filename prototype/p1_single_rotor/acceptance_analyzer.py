@@ -71,7 +71,19 @@ def summarize_cycle(
     )
 
 
-def evaluate_acceptance(cycles: Sequence[CycleMetrics]) -> AcceptanceResult:
+def evaluate_acceptance(
+    cycles: Sequence[CycleMetrics],
+    *,
+    vibration_review_passed: bool = False,
+    thermal_review_passed: bool = False,
+) -> AcceptanceResult:
+    """Evaluate the released P1 quantitative gates plus required physical reviews.
+
+    Vibration-growth and component-temperature requirements are intentionally not
+    converted into invented numeric limits here. Until measured hardware data and
+    component-specific limits exist, both reviews must be explicitly passed by the
+    test operator for the overall result to pass.
+    """
     reasons: list[str] = []
     if len(cycles) < MIN_CONSECUTIVE_REGEN_CYCLES:
         return AcceptanceResult(
@@ -109,6 +121,11 @@ def evaluate_acceptance(cycles: Sequence[CycleMetrics]) -> AcceptanceResult:
             f"coast-down-time CV {coast_cv:.2f}% is not below "
             f"{MAX_REPEATABILITY_CV_PERCENT:.1f}%"
         )
+
+    if not vibration_review_passed:
+        reasons.append("physical vibration-growth review has not passed")
+    if not thermal_review_passed:
+        reasons.append("component thermal-stability review has not passed")
 
     return AcceptanceResult(
         passed=not reasons,
