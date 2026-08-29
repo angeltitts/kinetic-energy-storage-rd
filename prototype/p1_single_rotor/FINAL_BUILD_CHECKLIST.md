@@ -44,8 +44,10 @@ This checklist represents the point where software/design work stops and physica
 - [ ] verify E-stop at zero speed
 
 ## VESC / supervisor initial limits
-- [ ] rotor command <=1500 RPM
-- [ ] independent overspeed trip =1650 RPM
+- [ ] run `python prototype/p1_single_rotor/vesc_config_gate.py` and record PASS
+- [ ] save controller firmware/hardware revision and a screenshot/export/transcription of actual limits
+- [ ] rotor command <=1500 RPM / <=33,600 ERPM equivalent with released 15:48 drive and 14-pole motor
+- [ ] independent overspeed trip =1650 RPM / 36,960 ERPM equivalent
 - [ ] independent RPM sample stale timeout =0.25 s during commanded run
 - [ ] >5% independent-vs-VESC RPM disagreement latches a fault
 - [ ] battery discharge current <=5 A
