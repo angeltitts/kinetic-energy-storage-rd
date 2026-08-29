@@ -6,7 +6,7 @@
 - 3x 12 V 25 mm metal gearmotors, 300-500 RPM no-load, stall current <=2.5 A
 - 3x 20-35 mm rubber/polyurethane friction wheels matching motor shaft
 - 3x digital Hall sensor modules, 3.3 V compatible
-- 3x 5-8 mm neodymium magnets with mechanical retention
+- 12x 5-8 mm neodymium magnets with mechanical retention (4 equally spaced per rotor)
 - 1x 3-axis accelerometer module, I2C, 3.3 V compatible
 - 1x 12 V / 5 A regulated supply
 - 1x 5 A inline fuse holder + spare fuses
@@ -16,6 +16,14 @@
 - 2 m 18 AWG stranded wire
 - 3 m 22-24 AWG hookup wire
 - ferrules, crimp terminals, heat-shrink, cable ties
+
+## Hall index installation
+- install 4 magnets per rotor at equal 90-degree spacing
+- keep the four magnets on a rotor at the same radius
+- use equivalent magnet size/orientation and mechanical retention
+- verify exactly four clean Hall transitions per hand-turned revolution before motor power is enabled
+
+Four pulses/revolution are required because the release acceptance tests extend down to 50 RPM; at one pulse/revolution, a valid 50 RPM signal arrives only every 1.20 s and is too sparse for the firmware/control timeout.
 
 ## Mechanical
 - 1x 450 x 450 x 10 mm aluminum or HDPE base plate
