@@ -26,17 +26,33 @@ def _cycle(recovered: float, coast: float, *, faulted=False, moved=False):
     )
 
 
-def test_five_repeatable_cycles_pass():
+def test_five_repeatable_cycles_pass_only_with_physical_reviews():
     cycles = [_cycle(20.0 + 0.4 * i, 60.0 + i) for i in range(5)]
-    result = evaluate_acceptance(cycles)
+    result = evaluate_acceptance(
+        cycles,
+        vibration_review_passed=True,
+        thermal_review_passed=True,
+    )
     assert result.passed
     assert result.recovered_energy_cv_percent < 10.0
     assert result.coastdown_time_cv_percent < 10.0
 
 
+def test_quantitative_pass_cannot_bypass_unreviewed_physical_gates():
+    cycles = [_cycle(20.0 + 0.4 * i, 60.0 + i) for i in range(5)]
+    result = evaluate_acceptance(cycles)
+    assert not result.passed
+    assert any("vibration-growth" in reason for reason in result.reasons)
+    assert any("thermal-stability" in reason for reason in result.reasons)
+
+
 def test_recovered_energy_variation_over_limit_fails():
     cycles = [_cycle(20.0, 60.0) for _ in range(4)] + [_cycle(35.0, 60.0)]
-    result = evaluate_acceptance(cycles)
+    result = evaluate_acceptance(
+        cycles,
+        vibration_review_passed=True,
+        thermal_review_passed=True,
+    )
     assert not result.passed
     assert result.recovered_energy_cv_percent >= 10.0
     assert any("recovered-energy CV" in reason for reason in result.reasons)
@@ -46,7 +62,11 @@ def test_fault_and_witness_movement_fail():
     cycles = [_cycle(20.0, 60.0) for _ in range(4)] + [
         _cycle(20.0, 60.0, faulted=True, moved=True)
     ]
-    result = evaluate_acceptance(cycles)
+    result = evaluate_acceptance(
+        cycles,
+        vibration_review_passed=True,
+        thermal_review_passed=True,
+    )
     assert not result.passed
     assert any("faulted" in reason for reason in result.reasons)
     assert any("witness-mark" in reason for reason in result.reasons)
