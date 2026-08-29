@@ -21,13 +21,15 @@ Frozen:
 - independent overspeed supervisory contract
 - executable five-cycle energy/repeatability acceptance analysis
 - parameterized motor-adjustment-plate CAD driven by measured motor-face dimensions
+- fail-closed incoming-inspection record/gate for motor face, shaft/bearing fit, pulley runout and released rotor runout/wobble limits
 
 Requires physical incoming-part verification:
 - measure the purchased Flipsky motor face and enter bolt count, bolt circle, hole diameter, and center clearance into the released motor-interface CAD/checker before drilling
-- actual shaft/bearing fit
-- purchased pulley runout
+- measure actual shaft diameter and bearing bore and disposition their fit
+- measure purchased/installed pulley runout and explicitly disposition it
+- verify assembled rotor radial runout and axial wobble at OD are each <=0.25 mm
+- retain a passing `incoming_inspection.py` record before powered commissioning
 - actual battery state-of-charge / regenerative charge acceptance
-- rotor/hub runout after machining
 
 Requires physical test evidence before P1 can pass:
 - vibration trend through the released speed range
