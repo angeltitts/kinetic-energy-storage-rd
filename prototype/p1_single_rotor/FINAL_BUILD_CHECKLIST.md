@@ -47,10 +47,20 @@ This checklist represents the point where software/design work stops and physica
 - [ ] install guard
 - [ ] install independent RPM/vibration/temp sensing
 - [ ] mount 22 ohm / >=100 W dump resistor thermally to metal base
-- [ ] wire battery -> fuse -> E-stop/contactor -> P1 DC bus -> VESC
-- [ ] wire dump resistor across P1 DC bus on controller side of contactor
+- [ ] wire power, safety chain, dump path, sensing and logging exactly per WIRING_RELEASE.md
 - [ ] place recovered-energy current measurement in VESC branch, excluding dump/battery branches
-- [ ] verify E-stop at zero speed
+- [ ] verify all harnesses are strain-relieved and outside rotor/belt swept volumes
+
+## Stationary wiring / safety release — belt disabled or rotor mechanically prevented from rotating
+- [ ] verify F1 <=10 A in battery-positive lead
+- [ ] verify K1 contactor is upstream of the P1 DC bus
+- [ ] verify ~22 ohm dump remains across controller-side bus with K1 OPEN
+- [ ] verify physical NC latching E-stop drops K1 without software participation
+- [ ] verify controller DC polarity before energization
+- [ ] verify independent RPM sensor operates independently of VESC telemetry
+- [ ] identify every temperature channel against its physical sensor
+- [ ] verify VESC-branch current polarity and save continuity/polarity record
+- [ ] perform first energized stationary checks in WIRING_RELEASE.md before installing/enabling the belt
 
 ## VESC / supervisor initial limits
 - [ ] run `python prototype/p1_single_rotor/vesc_config_gate.py` and record PASS
@@ -74,6 +84,7 @@ This checklist represents the point where software/design work stops and physica
 - [ ] physical E-stop removes battery source independently of software while dump remains across controller bus
 
 ## Commission
+- [ ] guard installed/closed before any powered rotor test
 - [ ] verify dump resistance and secure thermal mounting before applying bus power
 - [ ] verify dump temperature remains controlled during a stationary powered-bus hold
 - [ ] 250 RPM / 30 s
