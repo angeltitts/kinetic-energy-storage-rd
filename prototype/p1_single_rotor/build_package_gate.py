@@ -27,7 +27,7 @@ REQUIRED_ARTIFACTS = (
     "incoming_inspection.py",
     "motor_interface.py",
     "vesc_config_gate.py",
-    "independent_overspeed.py",
+    "overspeed_gate.py",
     "supervisor.py",
     "instrumentation.py",
     "acceptance_analyzer.py",
