@@ -27,6 +27,8 @@ def run_profile(
         raise ValueError("dt_s must be positive")
     if usable_flywheel_energy_j <= 0:
         raise ValueError("usable_flywheel_energy_j must be positive")
+    if not 0.0 <= initial_soc <= 1.0:
+        raise ValueError("initial_soc must be within [0, 1]")
 
     state = HybridState(battery_power_w=0.0, flywheel_soc=initial_soc)
     batt: list[float] = []
@@ -35,12 +37,35 @@ def run_profile(
 
     for load_w in load_series_w:
         batt_w, fw_w = dispatch_step(load_w, state, limits, cfg)
+
+        # Energy-aware clamp: the desktop HIL model may not command the
+        # flywheel through the released SOC reserve boundaries within one step.
+        max_discharge_w = max(
+            0.0,
+            (state.flywheel_soc - limits.flywheel_soc_min)
+            * usable_flywheel_energy_j
+            / dt_s,
+        )
+        max_charge_w = max(
+            0.0,
+            (limits.flywheel_soc_max - state.flywheel_soc)
+            * usable_flywheel_energy_j
+            / dt_s,
+        )
+        fw_w = max(-max_charge_w, min(max_discharge_w, fw_w))
+
+        # Reconcile the battery after the energy clamp, while preserving its
+        # released power bounds. Any residual becomes explicit unmet power.
+        batt_w = load_w - fw_w
+        batt_w = max(-limits.battery_charge_w, min(limits.battery_discharge_w, batt_w))
         served_w = batt_w + fw_w
         unmet_energy_j += abs(load_w - served_w) * dt_s
 
-        # Positive flywheel power discharges stored energy; negative charges it.
         state.flywheel_soc -= fw_w * dt_s / usable_flywheel_energy_j
-        state.flywheel_soc = max(0.0, min(1.0, state.flywheel_soc))
+        state.flywheel_soc = max(
+            limits.flywheel_soc_min,
+            min(limits.flywheel_soc_max, state.flywheel_soc),
+        )
         state.battery_power_w = batt_w
 
         batt.append(batt_w)
