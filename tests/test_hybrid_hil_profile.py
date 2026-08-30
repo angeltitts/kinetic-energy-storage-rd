@@ -20,10 +20,10 @@ def test_reference_profile_is_fully_served_and_reduces_battery_peak():
         initial_soc=0.5,
         usable_flywheel_energy_j=31.0,
         limits=limits(),
-        cfg=DispatchConfig(alpha=0.08, soc_target=0.5, soc_gain_w=20.0),
+        cfg=DispatchConfig(alpha=0.08, soc_target=0.5, soc_gain_w=0.0),
     )
     assert r.unmet_energy_j < 1e-9
-    assert r.peak_reduction_fraction > 0.10
+    assert r.peak_reduction_fraction > 0.50
     assert 0.1 <= r.final_flywheel_soc <= 0.9
 
 
