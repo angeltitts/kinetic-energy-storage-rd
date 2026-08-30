@@ -10,6 +10,7 @@ REQUIRED_ARTIFACTS = (
     "README.md",
     "BOM.md",
     "PROCUREMENT_FREEZE.md",
+    "EXACT_PROCUREMENT_RELEASE_V1.md",
     "RELEASE_SPEC.md",
     "MECHANICAL_RELEASE.md",
     "HUB_AND_ROTOR_DRAWING.md",
@@ -32,6 +33,7 @@ REQUIRED_ARTIFACTS = (
     "instrumentation.py",
     "acceptance_analyzer.py",
     "regen_dump.py",
+    "procurement_gate.py",
     "cad/clamp_hub.scad",
     "cad/motor_adjustment_plate.scad",
     "cad/p1_assembly.scad",
@@ -60,6 +62,14 @@ RELEASE_INVARIANTS = {
         "1650 RPM independent overspeed trip",
         "Never demonstrate the overspeed trip by physically driving the rotor to 1650 RPM",
         "no powered rotation is permitted with the guard removed",
+    ),
+    "EXACT_PROCUREMENT_RELEASE_V1.md": (
+        "AutomationDirect GCX3131",
+        "PC792A-1C-C2-24C-N-X",
+        "0ATO010.VPGLO",
+        "HS100 22R J",
+        "EE-SX1042",
+        "generic \"6S battery pack\" is not the released P1 source definition",
     ),
 }
 
