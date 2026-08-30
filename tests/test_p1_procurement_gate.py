@@ -35,3 +35,8 @@ def test_wrong_fuse_rejected():
 def test_slow_rpm_sensor_rejected():
     errors = validate_safety_part(SafetyPart(kind="rpm_sensor", response_us=1000))
     assert errors
+
+
+def test_unknown_safety_part_fails_closed():
+    errors = validate_safety_part(SafetyPart(kind="unreleased_part"))
+    assert errors
