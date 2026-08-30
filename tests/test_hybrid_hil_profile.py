@@ -27,7 +27,7 @@ def test_reference_profile_is_fully_served_and_reduces_battery_peak():
     assert 0.1 <= r.final_flywheel_soc <= 0.9
 
 
-def test_soc_energy_accounting_blocks_impossible_flywheel_capacity():
+def test_soc_energy_accounting_respects_released_reserve():
     r = run_profile(
         [100.0] * 100,
         dt_s=0.1,
@@ -36,19 +36,15 @@ def test_soc_energy_accounting_blocks_impossible_flywheel_capacity():
         limits=limits(),
         cfg=DispatchConfig(alpha=0.05, soc_target=0.5, soc_gain_w=0.0),
     )
-    assert r.final_flywheel_soc == 0.0
+    assert r.final_flywheel_soc == 0.1
     assert r.battery_peak_w <= 120.0
 
 
-def test_invalid_time_or_energy_rejected():
+def test_invalid_inputs_rejected():
     cfg = DispatchConfig()
-    try:
-        run_profile([1.0], 0.0, 0.5, 10.0, limits(), cfg)
-        assert False
-    except ValueError:
-        pass
-    try:
-        run_profile([1.0], 0.1, 0.5, 0.0, limits(), cfg)
-        assert False
-    except ValueError:
-        pass
+    for dt_s, energy_j, soc in [(0.0, 10.0, 0.5), (0.1, 0.0, 0.5), (0.1, 10.0, 1.1)]:
+        try:
+            run_profile([1.0], dt_s, soc, energy_j, limits(), cfg)
+            assert False
+        except ValueError:
+            pass
